@@ -1,0 +1,22 @@
+# Secrets. This GitHub repository is public.
+.env
+.env.*
+!.env.example
+
+# Original joy.mk.ua config with live database credentials.
+/wp-config.php
+
+# Database dump contains accounts and password hashes.
+/database/*.sql
+/database/*.sql.gz
+
+# Backup Guard archives hold full site backups, and some files
+# are larger than GitHub's 100 MB limit.
+**/uploads/backup-guard/
+**/uploads/backup-guard.rar
+
+# Local noise
+*.log
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,44 @@
+name: goldentradition
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  wordpress:
+    image: wordpress:7.1.3-php8.3-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:80"
+    environment: &wp_env
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://localhost:8080');
+        define('WP_SITEURL', 'http://localhost:8080');
+    volumes: &wp_volumes
+      - ./site:/var/www/html
+  cli:
+    image: wordpress:cli-php8.3
+    profiles: [tools]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *wp_env
+    volumes: *wp_volumes
+volumes:
+  db_data:
